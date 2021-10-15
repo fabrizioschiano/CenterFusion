@@ -18,12 +18,15 @@ from utils.utils import AverageMeter
 from dataset.dataset_factory import dataset_factory
 from detector import Detector
 
+# the following is just a string which will be printed before every log
+str_print = "[log - test.py] "
 
 class PrefetchDataset(torch.utils.data.Dataset):
   def __init__(self, opt, dataset, pre_process_func):
     self.images = dataset.images
     self.load_image_func = dataset.coco.loadImgs
     self.img_dir = dataset.img_dir
+    print(str_print + "dataset.img_dir: " + dataset.img_dir)
     self.pre_process_func = pre_process_func
     self.get_default_calib = dataset.get_default_calib
     self.opt = opt
@@ -69,13 +72,16 @@ def prefetch_test(opt):
     os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpus_str
   Dataset = dataset_factory[opt.test_dataset]
   opt = opts().update_dataset_info_and_set_heads(opt, Dataset)
-  print(opt)
+  print(str_print + "Printing all the options")
+  print(opt)  
+  print("\n")
   Logger(opt)
   
   split = 'val' if not opt.trainval else 'test'
   if split == 'val':
     split = opt.val_split
   dataset = Dataset(opt, split)
+  print(str_print + "instancing Detector")
   detector = Detector(opt)
   
   if opt.load_results != '':
@@ -208,8 +214,12 @@ def _to_list(results):
   return results
 
 if __name__ == '__main__':
+  print(str_print + "Parsing parameters")
   opt = opts().parse()
   if opt.not_prefetch_test:
+    print(str_print + "opt.not_prefetch_test")
     test(opt)
   else:
+    print(str_print + "not opt.not_prefetch_test")
     prefetch_test(opt)
+  print(str_print + "End __main__")

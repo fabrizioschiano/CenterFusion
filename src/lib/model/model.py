@@ -13,6 +13,8 @@ from .networks.resnet import PoseResNet
 from .networks.dlav0 import DLASegv0
 from .networks.generic_network import GenericNetwork
 
+str_print = "[log - model.py] "
+
 _network_factory = {
   'resdcn': PoseResDCN,
   'dla': DLASeg,
@@ -22,13 +24,16 @@ _network_factory = {
 }
 
 def create_model(arch, head, head_conv, opt=None):
+  print(str_print + 'in create_model()')
   num_layers = int(arch[arch.find('_') + 1:]) if '_' in arch else 0
   arch = arch[:arch.find('_')] if '_' in arch else arch
+  print(str_print + 'arch: ' + arch)
   model_class = _network_factory[arch]
   model = model_class(num_layers, heads=head, head_convs=head_conv, opt=opt)
   return model
 
 def load_model(model, model_path, opt, optimizer=None):
+  print(str_print + 'in load_model()')
   start_epoch = 0
   checkpoint = torch.load(model_path, map_location=lambda storage, loc: storage)
   print('loaded {}, epoch {}'.format(model_path, checkpoint['epoch']))

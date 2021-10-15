@@ -16,6 +16,8 @@ from trainer import Trainer
 from test import prefetch_test
 import json
 
+str_print = "[log - main.py] "
+
 def get_optimizer(opt, model):
   if opt.optim == 'adam':
     optimizer = torch.optim.Adam(model.parameters(), opt.lr)
@@ -38,7 +40,7 @@ def main(opt):
   opt.device = torch.device('cuda' if opt.gpus[0] >= 0 else 'cpu')
   logger = Logger(opt)
 
-  print('Creating model...')
+  print(str_print + 'Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv, opt=opt)
   optimizer = get_optimizer(opt, model)
   start_epoch = 0

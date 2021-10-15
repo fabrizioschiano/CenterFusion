@@ -25,6 +25,7 @@ from nuscenes.utils.geometry_utils import view_points
 from utils.ddd_utils import compute_box_3d, project_to_image, draw_box_3d
 from utils.ddd_utils import comput_corners_3d, alpha2rot_y, get_pc_hm
 
+str_print = "[log - generic_dataset.py] "
 
 def get_dist_thresh(calib, ct, dim, alpha):
     rotation_y = alpha2rot_y(alpha, ct[0], calib[0, 2], calib[0, 0])
@@ -72,6 +73,7 @@ class GenericDataset(data.Dataset):
 
 
   def __init__(self, opt=None, split=None, ann_path=None, img_dir=None):
+    print(str_print + "in __init__()")
     super(GenericDataset, self).__init__()
     if opt is not None and split is not None:
       self.split = split
@@ -80,10 +82,12 @@ class GenericDataset(data.Dataset):
       self.enable_meta = True if (opt.run_dataset_eval and split in ["val", "mini_val", "test"]) or opt.eval else False
     
     if ann_path is not None and img_dir is not None:
-      print('==> initializing {} data from {}, \n images from {} ...'.format(
+      print(str_print + '==> initializing {} data from {}, \nimages from {} ...'.format(
         split, ann_path, img_dir))
       self.coco = coco.COCO(ann_path)
+      print(str_print + "constructed COCO object")
       self.images = self.coco.getImgIds()
+      print(str_print + "got ImgIds from COCO object")
 
       if opt.tracking:
         if not ('videos' in self.coco.dataset):
@@ -92,7 +96,7 @@ class GenericDataset(data.Dataset):
         self.video_to_images = defaultdict(list)
         for image in self.coco.dataset['images']:
           self.video_to_images[image['video_id']].append(image)
-      
+      print(str_print + "finished __init__")
       self.img_dir = img_dir
 
 

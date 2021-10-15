@@ -6,6 +6,8 @@ import argparse
 import os
 import sys
 
+str_print = "[log - opts.py] "
+
 class opts(object):
   def __init__(self):
     self.parser = argparse.ArgumentParser()
@@ -303,6 +305,7 @@ class opts(object):
     
 
   def parse(self, args=''):
+    print(str_print + "started parsing ...")
     if args == '':
       opt = self.parser.parse_args()
     else:
@@ -326,18 +329,18 @@ class opts(object):
     opt.num_workers = max(opt.num_workers, 2 * len(opt.gpus))
     opt.pre_img = False
     if 'tracking' in opt.task:
-      print('Running tracking')
+      print(str_print + 'Running tracking')
       opt.tracking = True
       opt.out_thresh = max(opt.track_thresh, opt.out_thresh)
       opt.pre_thresh = max(opt.track_thresh, opt.pre_thresh)
       opt.new_thresh = max(opt.track_thresh, opt.new_thresh)
       opt.pre_img = not opt.no_pre_img
-      print('Using tracking threshold for out threshold!', opt.track_thresh)
+      print(str_print + 'Using tracking threshold for out threshold!', opt.track_thresh)
       if 'ddd' in opt.task:
         opt.show_track_color = True
 
     opt.fix_res = not opt.keep_res
-    print('Fix size testing.' if opt.fix_res else 'Keep resolution testing.')
+    print(str_print + 'Fix size testing.' if opt.fix_res else 'Keep resolution testing.')
 
     if opt.head_conv == -1: # init default head_conv
       opt.head_conv = 256 if 'dla' in opt.arch else 64
@@ -345,8 +348,11 @@ class opts(object):
     opt.pad = 127 if 'hourglass' in opt.arch else 31
     opt.num_stacks = 2 if opt.arch == 'hourglass' else 1
 
+    print(str_print + "len(opt.gpus): ", len(opt.gpus))
     if opt.master_batch_size == -1:
       opt.master_batch_size = opt.batch_size // len(opt.gpus)
+    print(str_print + "opt.master_batch_size: ", opt.master_batch_size)
+    print(str_print + "opt.batch_size: ", opt.batch_size)
     rest_batch_size = (opt.batch_size - opt.master_batch_size)
     opt.chunk_sizes = [opt.master_batch_size]
     for i in range(len(opt.gpus) - 1):
@@ -354,8 +360,7 @@ class opts(object):
       if i < rest_batch_size % (len(opt.gpus) - 1):
         slave_chunk_size += 1
       opt.chunk_sizes.append(slave_chunk_size)
-    print('training chunk_sizes:', opt.chunk_sizes)
-
+    print(str_print + 'training chunk_sizes:', opt.chunk_sizes)
     if opt.debug > 0:
       opt.num_workers = 0
       opt.batch_size = 1
@@ -445,13 +450,14 @@ class opts(object):
     CATS = ['car', 'truck', 'bus', 'trailer', 'construction_vehicle', 
         'pedestrian', 'motorcycle', 'bicycle', 'traffic_cone', 'barrier']
     CAT_IDS = {v: i for i, v in enumerate(CATS)}
-    
+    print(str_print + "The categories and their IDs are: ", CAT_IDS)
+
     if opt.hm_dist_thresh is not None:
       temp = {}
       for (k,v) in opt.hm_dist_thresh.items():
         temp[CAT_IDS[k]] = v
       opt.hm_dist_thresh = temp
-    
+    print(str_print + "... finished parsing")
     return opt
 
 
@@ -522,11 +528,10 @@ class opts(object):
       temp = {k: [temp_head_conv for i in range(v)] for k,v in opt.custom_head_convs.items()}
       opt.head_conv.update(temp)
     
-    print('input h w:', opt.input_h, opt.input_w)
-    print('heads', opt.heads)
-    print('weights', opt.weights)
-    print('head conv', opt.head_conv)
-
+    print(str_print + 'input h w:', opt.input_h, opt.input_w)
+    print(str_print + 'heads', opt.heads)
+    print(str_print + 'weights', opt.weights)
+    print(str_print + 'head conv', opt.head_conv)
     return opt
 
   def init(self, args=''):

@@ -21,6 +21,8 @@ from nuscenes.utils.geometry_utils import view_points
 from nuscenes.utils.data_classes import Box
 from itertools import compress
 
+str_print = "[log - nuscenes.py] "
+
 class nuScenes(GenericDataset):
   default_resolution = [448, 800]
   num_categories = 10
@@ -59,7 +61,7 @@ class nuScenes(GenericDataset):
     
     split_name = split_names[split]
     data_dir = os.path.join(opt.data_dir, 'nuscenes')
-    print('Dataset version', opt.dataset_version)
+    print(str_print + 'Dataset version', opt.dataset_version)
     
     anns_dir = 'annotations'
     if opt.radar_sweeps > 1:
@@ -76,7 +78,7 @@ class nuScenes(GenericDataset):
     self.alpha_in_degree = False    
     self.num_samples = len(self.images)
 
-    print('Loaded {} {} samples'.format(split, self.num_samples))
+    print(str_print + 'Loaded {} {} samples'.format(split, self.num_samples))
 
 
   def __len__(self):

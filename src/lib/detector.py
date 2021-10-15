@@ -21,6 +21,7 @@ from utils.tracker import Tracker
 from dataset.dataset_factory import get_dataset
 from utils.pointcloud import generate_pc_hm
 
+str_print = "[log - detector.py] "
 
 class Detector(object):
   def __init__(self, opt):
@@ -29,14 +30,19 @@ class Detector(object):
     else:
       opt.device = torch.device('cpu')
     
-    print('Creating model...')
+    print(str_print + 'Creating model...')
     self.model = create_model(
       opt.arch, opt.heads, opt.head_conv, opt=opt)
+    print(str_print + 'Loading model...')
     self.model = load_model(self.model, opt.load_model, opt)
     self.model = self.model.to(opt.device)
+    print(str_print + 'Evaluating model...')
     self.model.eval()
 
+
     self.opt = opt
+    print(str_print + "getting dataset")
+    print(str_print + "opt.dataset: " + opt.dataset)
     self.trained_dataset = get_dataset(opt.dataset)
     self.mean = np.array(
       self.trained_dataset.mean, dtype=np.float32).reshape(1, 1, 3)
@@ -49,8 +55,10 @@ class Detector(object):
     self.cnt = 0
     self.pre_images = None
     self.pre_image_ori = None
+    print(str_print + "instancing Tracker")
     self.tracker = Tracker(opt)
     self.debugger = Debugger(opt=opt, dataset=self.trained_dataset)
+    print(str_print + "finished __init__()")
 
 
   def run(self, image_or_path_or_tensor, meta={}):

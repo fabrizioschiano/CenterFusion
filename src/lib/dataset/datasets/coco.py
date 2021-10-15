@@ -11,7 +11,10 @@ import copy
 
 from ..generic_dataset import GenericDataset
 
+str_print = "[log - coco.py]"
+
 class COCO(GenericDataset):
+  print(str_print + "in class COCO")
   default_resolution = [512, 512]
   num_categories = 80
   class_name = [
@@ -49,6 +52,7 @@ class COCO(GenericDataset):
   max_objs = 128
   def __init__(self, opt, split):
     # load annotations
+    print(str_print + "in __init__()")
     data_dir = os.path.join(opt.data_dir, 'coco')
     img_dir = os.path.join(data_dir, '{}2017'.format(split))
     if opt.trainval:
@@ -67,7 +71,7 @@ class COCO(GenericDataset):
 
     self.num_samples = len(self.images)
 
-    print('Loaded {} {} samples'.format(split, self.num_samples))
+    print(str_print + 'Loaded {} {} samples'.format(split, self.num_samples))
 
   def _to_float(self, x):
     return float("{:.2f}".format(x))

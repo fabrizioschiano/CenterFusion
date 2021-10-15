@@ -22,7 +22,8 @@ class Logger(object):
       os.makedirs(opt.save_dir)
     if not os.path.exists(opt.debug_dir):
       os.makedirs(opt.debug_dir)
-   
+    print("opt.save_dir: " + opt.save_dir)
+    print("opt.debug_dir: " + opt.debug_dir)
     time_str = time.strftime('%Y-%m-%d-%H-%M')
 
     args = dict((name, getattr(opt, name)) for name in dir(opt)
