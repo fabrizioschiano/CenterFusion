@@ -421,8 +421,8 @@ class Debugger(object):
             True,lc,2,lineType=cv2.LINE_AA)
         for e in [[0, 1]]:
           t = 4 if e == [0, 1] else 1
-          cv2.line(bird_view, (rect[e[0]][0], rect[e[0]][1]),
-                  (rect[e[1]][0], rect[e[1]][1]), lc, t,
+          cv2.line(bird_view, (int(rect[e[0]][0]), int(rect[e[0]][1])),
+                  (int(rect[e[1]][0]), int(rect[e[1]][1])), lc, t,
                   lineType=cv2.LINE_AA)
 
     self.imgs[img_id] = bird_view
