@@ -22,6 +22,8 @@ from utils.pointcloud import RadarPointCloudWithVelocity as RadarPointCloud
 from nuScenes_lib.utils_radar import map_pointcloud_to_image
 import time
 
+print_tag = "[log - convert_nuscenes.py] "
+
 DATA_PATH = '../../data/nuscenes/'
 OUT_PATH = DATA_PATH + 'annotations'
 SPLITS = {
@@ -153,10 +155,13 @@ def main():
           calib = calib[:3]
           frame_ids[sensor_name] += 1
 
-           # get radar pointclouds
-          # print("getting radar pointclouds")
+          # get radar pointclouds
+          # print(print_tag + "getting radar pointclouds")
+          # 18 is the number of fields of the pointcloud. 
+          # FIELDS x y z dyn_prop id rcs vx vy vx_comp vy_comp is_quality_valid ambig_state x_rms y_rms invalid_state pdh0 vx_rms vy_rms
           all_radar_pcs = RadarPointCloud(np.zeros((18, 0)))
           for radar_channel in RADARS_FOR_CAMERA[sensor_name]:
+            # print(print_tag + "radar_channel: " + radar_channel)
             radar_pcs, _ = RadarPointCloud.from_file_multisweep(nusc, 
               sample, radar_channel, sensor_name, NUM_SWEEPS)
             all_radar_pcs.points = np.hstack((all_radar_pcs.points, radar_pcs.points))
