@@ -25,19 +25,31 @@ _network_factory = {
 
 def create_model(arch, head, head_conv, opt=None):
   print(str_print + 'in create_model()')
+  # the following line tries to find the number of layers from the "name" of the architecture used. E.g. dla_34 will have 34 layers
+  print(str_print + 'arch (including the num_layers): ' + arch)
   num_layers = int(arch[arch.find('_') + 1:]) if '_' in arch else 0
+  print(str_print + 'num_layers: ' + str(num_layers))
+  # the following line removes the _num_layers from the arch string. E.g. 'dla_34' will become 'dla'
   arch = arch[:arch.find('_')] if '_' in arch else arch
-  print(str_print + 'arch: ' + arch)
+  print(str_print + 'arch (stripped of the num_layers): ' + arch)
   model_class = _network_factory[arch]
+  # e.g., model_class: <class 'model.networks.dla.DLASeg'>
+  print(str_print + 'model_class: ' + str(model_class))
   model = model_class(num_layers, heads=head, head_convs=head_conv, opt=opt)
   return model
 
 def load_model(model, model_path, opt, optimizer=None):
   print(str_print + 'in load_model()')
   start_epoch = 0
+  # Load the model into the CPU
   checkpoint = torch.load(model_path, map_location=lambda storage, loc: storage)
-  print('loaded {}, epoch {}'.format(model_path, checkpoint['epoch']))
+  print(str_print+"type(checkpoint): ", type(checkpoint))
+  print(str_print+"checkpoint.keys(): ", checkpoint.keys())
+  # An alternative to previous command would be to load the model into the GPU 1 with
+  # checkpoint = torch.load(model_path, map_location=lambda storage, loc: storage.cuda(0))
+  print(str_print + 'loaded {}, epoch {}'.format(model_path, checkpoint['epoch']))
   state_dict_ = checkpoint['state_dict']
+  print(str_print+"type(state_dict_): ", type(state_dict_))
   state_dict = {}
    
   # convert data_parallal to model
@@ -51,8 +63,13 @@ def load_model(model, model_path, opt, optimizer=None):
   # check loaded parameters and created model parameters
   for k in state_dict:
     if k in model_state_dict:
+      # print(str_print + k + " is in model_state_dict")
+      # print("   " + str_print + "state_dict[k].shape: " + str(state_dict[k].shape))
+      # print("   " + str_print + "model_state_dict[k].shape: " + str(model_state_dict[k].shape))
+
       if (state_dict[k].shape != model_state_dict[k].shape) or \
         (opt.reset_hm and k.startswith('hm') and (state_dict[k].shape[0] in [80, 1])):
+        print(str_print + "checking for loaded parameters")
         if opt.reuse_hm:
           print('Reusing parameter {}, required shape{}, '\
                 'loaded shape{}.'.format(
@@ -65,6 +82,7 @@ def load_model(model, model_path, opt, optimizer=None):
           state_dict[k] = model_state_dict[k]
         
         elif opt.warm_start_weights:
+          print(str_print + "warming_start_weights")
           try:
             print('Partially loading parameter {}, required shape{}, '\
                   'loaded shape{}.'.format(
@@ -81,7 +99,7 @@ def load_model(model, model_path, opt, optimizer=None):
             state_dict[k] = model_state_dict[k]
         
         else:
-          print('Skip loading parameter {}, required shape{}, '\
+          print(str_print + 'Skip loading parameter {}, required shape{}, '\
                 'loaded shape{}.'.format(
             k, model_state_dict[k].shape, state_dict[k].shape))
           state_dict[k] = model_state_dict[k]
@@ -91,10 +109,18 @@ def load_model(model, model_path, opt, optimizer=None):
     if not (k in state_dict):
       print('No param {}.'.format(k))
       state_dict[k] = model_state_dict[k]
+  # The following lines loads the parameters for each layer of the model 'model'
+  # The parameters of a model in pytorch are the "learnable" parameters (i.e. weights and biases) of an torch.nn.Module model. 
+  # They can be accessed with model.parameters(). 
+  # A state_dict is simply a Python dictionary object that maps each layer to its parameter tensor. 
+  # Note that only layers with learnable parameters (convolutional layers, linear layers, etc.) and registered buffers 
+  # (batchnorm’s running_mean) have entries in the model’s state_dict. Optimizer objects (torch.optim) also have a state_dict, 
+  # which contains information about the optimizer’s state, as well as the hyperparameters used.
   model.load_state_dict(state_dict, strict=False)
 
   # freeze backbone network
   if opt.freeze_backbone:
+    print(str_print + "backbone network is frozen")
     for (name, module) in model.named_children():
       if name in opt.layers_to_freeze:
         for (name, layer) in module.named_children():
@@ -103,6 +129,7 @@ def load_model(model, model_path, opt, optimizer=None):
 
   # resume optimizer parameters
   if optimizer is not None and opt.resume:
+    print(str_print + "trying to resume optimizer parameters")
     if 'optimizer' in checkpoint:
       start_epoch = checkpoint['epoch']
       start_lr = opt.lr
@@ -111,12 +138,14 @@ def load_model(model, model_path, opt, optimizer=None):
           start_lr *= 0.1
       for param_group in optimizer.param_groups:
         param_group['lr'] = start_lr
-      print('Resumed optimizer with start lr', start_lr)
+      print(str_print + 'Resumed optimizer with start lr', start_lr)
     else:
-      print('No optimizer parameters in checkpoint.')
+      print(str_print + 'No optimizer parameters in checkpoint.')
   if optimizer is not None:
+    print(str_print + 'optimizer is not None')
     return model, optimizer, start_epoch
   else:
+    print(str_print + 'optimizer is None')
     return model
 
 def save_model(path, epoch, model, optimizer=None):

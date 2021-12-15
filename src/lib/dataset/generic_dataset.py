@@ -378,6 +378,7 @@ class GenericDataset(data.Dataset):
 
   ## Load the Radar point cloud data
   def _load_pc_data(self, img, img_info, inp_trans, out_trans, flipped=0):
+    # print(str_print + "start loading the radar point cloud data")
     img_height, img_width = img.shape[0], img.shape[1]
     radar_pc = np.array(img_info.get('radar_pc', None))
     if radar_pc is None:
@@ -387,6 +388,7 @@ class GenericDataset(data.Dataset):
     depth = radar_pc[2,:]
     
     # filter points by distance
+    # print(str_print + "filtering radar points by distance (allowing only the ones <= " + str(self.opt.max_pc_dist) + ")")
     if self.opt.max_pc_dist > 0:
       mask = (depth <= self.opt.max_pc_dist)
       radar_pc = radar_pc[:,mask]
@@ -421,7 +423,7 @@ class GenericDataset(data.Dataset):
     pc_z[:, :n_points] = pc_2d[:, :n_points]
     pc_3dz = np.zeros((pc_3d.shape[0], self.opt.max_pc))
     pc_3dz[:, :n_points] = pc_3d[:, :n_points]
-
+    # print(str_print + "finish loading the radar point cloud data")
     return pc_z, pc_N, pc_dep, pc_3dz
 
 

@@ -466,23 +466,29 @@ class opts(object):
                       if opt.num_classes < 0 else opt.num_classes
     # input_h(w): opt.input_h overrides opt.input_res overrides dataset default
     input_h, input_w = dataset.default_resolution
+    print(str_print + "dataset.default_resolution: " + str(dataset.default_resolution))
+    print(str_print + "opt.input_res: " + str(opt.input_res))
     input_h = opt.input_res if opt.input_res > 0 else input_h
     input_w = opt.input_res if opt.input_res > 0 else input_w
     opt.input_h = opt.input_h if opt.input_h > 0 else input_h
     opt.input_w = opt.input_w if opt.input_w > 0 else input_w
+    print(str_print + "opt.down_ratio: " + str(opt.down_ratio))
     opt.output_h = opt.input_h // opt.down_ratio
     opt.output_w = opt.input_w // opt.down_ratio
+    print(str_print + "opt.output_h: " + str(opt.output_h))
+    print(str_print + "opt.output_w: " + str(opt.output_w))
     opt.input_res = max(opt.input_h, opt.input_w)
     opt.output_res = max(opt.output_h, opt.output_w)
   
     opt.heads = {'hm': opt.num_classes, 'reg': 2, 'wh': 2}
-
+    print(str_print + "opt.task: " + str(opt.task))
     if 'tracking' in opt.task:
       opt.heads.update({'tracking': 2})
 
     if 'ddd' in opt.task:
       opt.heads.update({'dep': 1, 'rot': 8, 'dim': 3, 'amodel_offset': 2})
 
+    print(str_print + "opt.pointcloud: " + str(opt.pointcloud))
     if opt.pointcloud:
       opt.heads.update({'dep_sec': 1})
       opt.heads.update({'rot_sec': 8})

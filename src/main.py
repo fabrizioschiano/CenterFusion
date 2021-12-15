@@ -16,6 +16,8 @@ from trainer import Trainer
 from test import prefetch_test
 import json
 
+import time
+
 str_print = "[log - main.py] "
 
 def get_optimizer(opt, model):
@@ -27,14 +29,16 @@ def get_optimizer(opt, model):
       model.parameters(), opt.lr, momentum=0.9, weight_decay=0.0001)
   else:
     assert 0, opt.optim
+  print(str_print + "optimizer: " + str(optimizer))
   return optimizer
 
 def main(opt):
   torch.manual_seed(opt.seed)
   torch.backends.cudnn.benchmark = not opt.not_cuda_benchmark and not opt.eval
+  # e.g. opt.dataset = 'nuscenes'
   Dataset = get_dataset(opt.dataset)
   opt = opts().update_dataset_info_and_set_heads(opt, Dataset)
-  print(opt)
+  print(str_print + "opt: " + str(opt))
   if not opt.not_set_cuda_env:
     os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpus_str
   opt.device = torch.device('cuda' if opt.gpus[0] >= 0 else 'cpu')
@@ -53,7 +57,7 @@ def main(opt):
   trainer = Trainer(opt, model, optimizer)
   trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
   
-  if opt.val_intervals < opt.num_epochs or opt.eval:
+  if opt.val_intervals <= opt.num_epochs or opt.eval:
     print('Setting up validation data...')
     val_loader = torch.utils.data.DataLoader(
       Dataset(opt, opt.val_split), batch_size=1, shuffle=False, 
@@ -66,6 +70,7 @@ def main(opt):
       return
 
   print('Setting up train data...')
+  # print(Dataset(opt, opt.train_split)[1])
   train_loader = torch.utils.data.DataLoader(
       Dataset(opt, opt.train_split), batch_size=opt.batch_size, 
         shuffle=opt.shuffle_train, num_workers=opt.num_workers, 
@@ -75,7 +80,7 @@ def main(opt):
   print('Starting training...')
   for epoch in range(start_epoch + 1, opt.num_epochs + 1):
     mark = epoch if opt.save_all else 'last'
-
+    print(str_print + "mark: " + mark)
     # log learning rate
     for param_group in optimizer.param_groups:
       lr = param_group['lr']
@@ -138,5 +143,7 @@ def main(opt):
   logger.close()
 
 if __name__ == '__main__':
+  start_time = time.time()
   opt = opts().parse()
   main(opt)
+  print("-------------- %s seconds --------------" % (time.time() - start_time))

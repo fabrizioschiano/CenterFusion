@@ -11,6 +11,7 @@ import time
 from progress.bar import Bar
 import torch
 import copy
+import sys
 
 from opts import opts
 from logger import Logger
@@ -76,7 +77,9 @@ def prefetch_test(opt):
   print(opt)  
   print("\n")
   Logger(opt)
-  
+  # print("exiting...")
+  # sys.exit()
+
   split = 'val' if not opt.trainval else 'test'
   if split == 'val':
     split = opt.val_split
@@ -214,6 +217,7 @@ def _to_list(results):
   return results
 
 if __name__ == '__main__':
+  start_time = time.time()
   print(str_print + "Parsing parameters")
   opt = opts().parse()
   if opt.not_prefetch_test:
@@ -223,3 +227,4 @@ if __name__ == '__main__':
     print(str_print + "not opt.not_prefetch_test")
     prefetch_test(opt)
   print(str_print + "End __main__")
+  print("-------------- %s seconds --------------" % (time.time() - start_time))

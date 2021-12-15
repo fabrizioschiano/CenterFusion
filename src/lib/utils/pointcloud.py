@@ -10,9 +10,12 @@ from model.utils import _topk, _tranpose_and_gather_feat
 import os.path as osp
 import torch
 import timeit
+import sys
 
 import numpy as np
 from pyquaternion import Quaternion
+
+str_print = "[log - pointcloud.py] "
 
 def map_pointcloud_to_image(pc, cam_intrinsic, img_shape=(1600,900)):
     """
@@ -88,6 +91,7 @@ class RadarPointCloudWithVelocity(RadarPointCloud):
         """
         # Init.
         points = np.zeros((cls.nbr_dims(), 0))
+        print(str_print + "cls.nbr_dims(): " + str(cls.nbr_dims()))
         all_pc = cls(points)
         all_times = np.zeros((1, 0))
 
@@ -114,6 +118,9 @@ class RadarPointCloudWithVelocity(RadarPointCloud):
         for _ in range(nsweeps):
             # Load up the pointcloud and remove points close to the sensor.
             current_pc = cls.from_file(osp.join(nusc.dataroot, current_sd_rec['filename']))
+            print(str_print + osp.join(nusc.dataroot, current_sd_rec['filename']))
+            print(str_print + "exiting...")
+            # sys.exit()
             current_pc.remove_close(min_distance)
 
             # Get past pose.

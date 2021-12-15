@@ -33,6 +33,8 @@ class nuScenes(GenericDataset):
   cat_ids = {i + 1: i + 1 for i in range(num_categories)}
   focal_length = 1200
   max_objs = 128
+  # the following is the group of classes which are ignored for the tracking task 
+  # it is also written at the beginning of the section 3.2 of the nuscenes paper  
   _tracking_ignored_class = ['construction_vehicle', 'traffic_cone', 'barrier']
   _vehicles = ['car', 'truck', 'bus', 'trailer', 'construction_vehicle']
   _cycles = ['motorcycle', 'bicycle']

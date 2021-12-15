@@ -11,7 +11,7 @@ import copy
 
 from ..generic_dataset import GenericDataset
 
-str_print = "[log - coco.py]"
+str_print = "[log - coco.py] "
 
 class COCO(GenericDataset):
   print(str_print + "in class COCO")
@@ -50,6 +50,8 @@ class COCO(GenericDataset):
            [6, 12], [5, 11], [11, 12], 
            [12, 14], [14, 16], [11, 13], [13, 15]]
   max_objs = 128
+  print(str_print + "in class COCO1")
+  
   def __init__(self, opt, split):
     # load annotations
     print(str_print + "in __init__()")
@@ -67,6 +69,7 @@ class COCO(GenericDataset):
 
     self.images = None
     # load image list and coco
+    print(str_print + "loading image list and coco")
     super(COCO, self).__init__(opt, split, ann_path, img_dir)
 
     self.num_samples = len(self.images)

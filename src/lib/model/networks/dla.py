@@ -237,6 +237,7 @@ class DLA(nn.Module):
                  block=BasicBlock, residual_root=False, linear_root=False,
                  opt=None):
         super(DLA, self).__init__()
+        print(str_print + "Initializing DLA")
         self.channels = channels
         self.num_classes = num_classes
         self.base_layer = nn.Sequential(

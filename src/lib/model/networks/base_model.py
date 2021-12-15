@@ -88,6 +88,7 @@ class BaseModel(nn.Module):
 
     def forward(self, x, pc_hm=None, pc_dep=None, calib=None):
       ## extract features from image
+      # img2feats is implemented in CenterFusion/src/lib/model/networks/dla.py or any other backbone you are using (e.g., dlav0, resdcn, resnet)
       feats = self.img2feats(x)
       out = []
       
