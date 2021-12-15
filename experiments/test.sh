@@ -15,7 +15,10 @@ python test.py ddd \
     --radar_sweeps 6 \
     --max_pc_dist 60.0 \
     --pc_z_offset -0.0 \
-    --load_model ../models/centerfusion_e60.pth \
+    --load_model ../exp/ddd/centerfusion/model_last.pth \
     --flip_test \
-    --debug 4 \
+    # --debug 4 \
+    # --load_model ../models/centernet_baseline_e170.pth \
+    # --load_model ../exp/ddd/centerfusion/model_last.pth
+    # --load_model ../models/centerfusion_e60.pth \
     # --resume \
